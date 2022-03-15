@@ -1,7 +1,7 @@
 """Auxilary files for those who wanted to solve breakout with CEM or policy gradient"""
 import numpy as np
 import gym
-from scipy.misc import imresize
+import cv2
 from gym.core import Wrapper
 from gym.spaces.box import Box
 
@@ -42,6 +42,6 @@ class PreprocessAtari(Wrapper):
     def preproc_image(self, img):
         """what happens to the observation"""
         img = self.crop(img)
-        img = imresize(img, self.img_size).mean(-1)
+        img = cv2.resize(img, self.img_size).mean(-1)
         img = img.astype('float32') / 255.
         return img
