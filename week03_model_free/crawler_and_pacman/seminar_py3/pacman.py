@@ -548,6 +548,7 @@ def readCommand(argv):
         random.seed('cs188')
 
     # Choose a layout
+    # print(options.layout)
     args['layout'] = layout.getLayout(options.layout)
     if args['layout'] is None:
         raise Exception("The layout " + options.layout + " cannot be found")

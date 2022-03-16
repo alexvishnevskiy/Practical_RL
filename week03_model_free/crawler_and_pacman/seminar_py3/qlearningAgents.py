@@ -4,8 +4,9 @@
 
 from game import *
 from learningAgents import ReinforcementAgent
+from scipy.spatial import distance
 from featureExtractors import *
-
+import numpy as np
 import random
 import util
 import math
@@ -38,17 +39,26 @@ class QLearningAgent(ReinforcementAgent):
         ReinforcementAgent.__init__(self, **args)
         self._qValues = defaultdict(lambda: defaultdict(lambda: 0))
 
+    def extractFeatures(self, state):
+        pos = state.getPacmanPosition()
+        hasWall = state.hasWall(*pos)
+        ghostPos = tuple(state.getGhostPositions())
+        capsulesPos = tuple(state.getCapsules())
+        return pos, hasWall, ghostPos, capsulesPos
+
     def getQValue(self, state, action):
         """
           Returns Q(state,action)
         """
-        return self._qValues[state][action]
+        state_features = self.extractFeatures(state)
+        return self._qValues[state_features][action]
 
     def setQValue(self, state, action, value):
         """
           Sets the Qvalue for [state,action] to the given value
         """
-        self._qValues[state][action] = value
+        state_features = self.extractFeatures(state)
+        self._qValues[state_features][action] = value
 
 #---------------------#start of your code#---------------------#
 
@@ -63,10 +73,8 @@ class QLearningAgent(ReinforcementAgent):
         if len(possibleActions) == 0:
             return 0.0
 
-        "*** YOUR CODE HERE ***"
-        raise NotImplementedError
-
-        return 0.
+        value = max([self.getQValue(state, action) for action in possibleActions])
+        return value
 
     def getPolicy(self, state):
         """
@@ -81,9 +89,8 @@ class QLearningAgent(ReinforcementAgent):
 
         best_action = None
 
-        "*** YOUR CODE HERE ***"
-        raise NotImplementedError
-
+        best_action_indx = np.argmax([self.getQValue(state, action) for action in possibleActions])
+        best_action = possibleActions[best_action_indx]
         return best_action
 
     def getAction(self, state):
@@ -108,10 +115,9 @@ class QLearningAgent(ReinforcementAgent):
 
         # agent parameters:
         epsilon = self.epsilon
-
-        "*** YOUR CODE HERE ***"
-        raise NotImplementedError
-
+        prob = random.random()
+        
+        action = random.choice(possibleActions) if prob < epsilon else self.getPolicy(state)
         return action
 
     def update(self, state, action, nextState, reward):
@@ -127,13 +133,10 @@ class QLearningAgent(ReinforcementAgent):
         gamma = self.discount
         learning_rate = self.alpha
 
-        "*** YOUR CODE HERE ***"
-        raise NotImplementedError
+        Q_value = self.getQValue(state, action)
+        Q_value = (1-learning_rate)*Q_value + learning_rate*(reward + gamma*self.getValue(nextState))
 
-        reference_qvalue = PleaseImplementMe
-        updated_qvalue = PleaseImplementMe
-
-        self.setQValue(PleaseImplementMe, PleaseImplementMe, updated_qvalue)
+        self.setQValue(state, action, Q_value)
 
 
 #---------------------#end of your code#---------------------#
@@ -142,7 +145,7 @@ class QLearningAgent(ReinforcementAgent):
 class PacmanQAgent(QLearningAgent):
     "Exactly the same as QLearningAgent, but with different default parameters"
 
-    def __init__(self, epsilon=0.05, gamma=0.8, alpha=0.2, numTraining=0, **args):
+    def __init__(self, epsilon=0.25, gamma=0.8, alpha=0.5, numTraining=0, **args):
         """
         These default parameters can be changed from the pacman.py command line.
         For example, to change the exploration rate, try:

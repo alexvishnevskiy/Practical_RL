@@ -136,7 +136,8 @@ def getLayout(name, back=2):
         if layout is None:
             layout = tryToLoad(name)
     else:
-        layout = tryToLoad('layouts/' + name + '.lay')
+        # layout = tryToLoad('./layouts/' + name + '.lay')
+        layout = tryToLoad('/Users/alexander/Documents/YSDA/week03_model_free/crawler_and_pacman/seminar_py3/layouts/' + name + '.lay')
         if layout is None:
             layout = tryToLoad(name + '.lay')
     if layout is None and back >= 0:
